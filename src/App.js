@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 
 function App() {
 
+  const [phrase, setPhrase] = useState('')
+  const [songs, setSongs] = useState([])
+
   var client_id = 'ac4922d6a3274eaf9b95062770834418';
   var redirect_uri = 'http://localhost:3000';
 
@@ -21,6 +24,7 @@ function App() {
     );
     access_token = parsedHash.get('access_token')
   }
+
 
   useEffect(() => {
     if (access_token){
@@ -46,14 +50,39 @@ function App() {
     )
   }
 
-  // GET THE DATA TO DISPLAY ON PAGE
+
+  const get_songs = (phrase) => {
+  
+    const words = phrase.split(' ')
+    fetch('https://api.spotify.com/v1/search?type=track&q=track:i+love&limit=20', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${access_token}`,
+      },
+    }).then((response) => response.json()).then((json) => {
+      console.log(json.tracks.items);
+    })
+
+    setSongs(words)  
+  }
 
 
   return (
-    <>
-    <div>YOU ARE LOGGED IN</div>
-    <input 
-      type="text"/>
+    <>    
+    <label> Type any phrase you'd like:
+      <input
+        htmlFor='userInput' 
+        value={phrase}
+        onChange={(event) => setPhrase(event.target.value)}
+        id='userInput'/>
+    </label>
+    <button onClick={() => get_songs(phrase)}>Submit</button>
+    <ul>
+      {songs.map(song => (
+        <li>{song}</li>
+      ))}
+    </ul>
     </>
   )
 
